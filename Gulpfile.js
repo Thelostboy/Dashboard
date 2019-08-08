@@ -1,29 +1,17 @@
+const { src, series, parallel, dest, watch } = require('gulp');
+const sass = require('gulp-sass');
 
-// Include gulp
-var gulp = require('gulp');
- 
-// Include Our Plugins
-var sass = require('gulp-sass');
-// var concat = require('gulp-concat');
-var rename = require('gulp-rename');
-var livereload = require('gulp-livereload');
-// var minifyCss = require('gulp-cssnano');
- 
-// Compile Our Sass
-gulp.task('sass', function () {
-    return gulp.src('scss/style.scss')
-        .pipe(sass())
-        .pipe(minifyCss())
-        .pipe(rename('style.min.css'))
-        .pipe(gulp.dest('css'))
-        .pipe(livereload());
-});
- 
-// Watch Files For Changes
-gulp.task('watch', function () {
-    livereload.listen();
-    gulp.watch(['assets/sass/**/*'], ['sass']);
-});
- 
-// Default Task
-gulp.task('default', ['sass', 'watch']);
+const sassTask = function(){
+    return src('scss/**/*.scss')
+        .pipe(sass().on('error', sass.logError))
+        .pipe(dest('css'));
+};
+const watchTask = function(){
+    watch(['scss/**/*.scss'],
+        parallel(sassTask)
+    )
+}
+exports.default = series(
+    parallel(sassTask),
+    watchTask
+)
